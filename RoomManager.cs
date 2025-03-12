@@ -1,11 +1,46 @@
-using UnityEngine;
+// Room class
+public class Room
+{
+    private Dictionary<string, Room> exits = new Dictionary<string, Room>();
 
+    public Room() { }
+
+    public void setExit(string direction, Room neighbor)
+    {
+        exits[direction] = neighbor;
+    }
+
+    public bool hasExit(string direction)
+    {
+        return exits.ContainsKey(direction);
+    }
+
+    public Room getExit(string direction)
+    {
+        if (exits.ContainsKey(direction))
+        {
+            return exits[direction];
+        }
+        return null;
+    }
+    
+    public bool tryToTakeExit(string direction)
+    {
+        if (exits.ContainsKey(direction))
+        {
+            Core.thePlayer.setCurrentRoom(exits[direction]);
+            return true;
+        }
+        return false;
+    }
+}
+
+// RoomManager class
 public class RoomManager : MonoBehaviour
 {
     public GameObject[] theDoors;
     private Dungeon theDungeon;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Core.thePlayer = new Player("Mike");
@@ -13,43 +48,54 @@ public class RoomManager : MonoBehaviour
         this.setupRoom();
     }
 
-    //disable all doors
     private void resetRoom()
     {
-        this.theDoors[0].SetActive(false);
-        this.theDoors[1].SetActive(false);
-        this.theDoors[2].SetActive(false);
-        this.theDoors[3].SetActive(false);
+        foreach (GameObject door in theDoors)
+        {
+            door.SetActive(false);
+        }
     }
 
-    //show the doors appropriate to the current room
     private void setupRoom()
     {
         Room currentRoom = Core.thePlayer.getCurrentRoom();
-        this.theDoors[0].SetActive(currentRoom.hasExit("north"));
-        this.theDoors[1].SetActive(currentRoom.hasExit("south"));
-        this.theDoors[2].SetActive(currentRoom.hasExit("east"));
-        this.theDoors[3].SetActive(currentRoom.hasExit("west"));
+        theDoors[0].SetActive(currentRoom.hasExit("north"));
+        theDoors[1].SetActive(currentRoom.hasExit("south"));
+        theDoors[2].SetActive(currentRoom.hasExit("east"));
+        theDoors[3].SetActive(currentRoom.hasExit("west"));
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            //try to goto the north
+            if (Core.thePlayer.getCurrentRoom().tryToTakeExit("north"))
+            {
+                setupRoom();
+            }
         }
-        else if(Input.GetKeyDown(KeyCode.LeftArrow))
+        else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            //try to goto the west
+            if (Core.thePlayer.getCurrentRoom().tryToTakeExit("west"))
+            {
+                setupRoom();
+            }
         }
-        else if(Input.GetKeyDown(KeyCode.RightArrow))
+        else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            //try to goto the east
+            if (Core.thePlayer.getCurrentRoom().tryToTakeExit("east"))
+            {
+                setupRoom();
+            }
         }
-        else if(Input.GetKeyDown(KeyCode.DownArrow))
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            //try to goto the south
+            if (Core.thePlayer.getCurrentRoom().tryToTakeExit("south"))
+            {
+                setupRoom();
+            }
         }
     }
 }
+
+   
