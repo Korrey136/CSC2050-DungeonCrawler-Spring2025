@@ -1,18 +1,71 @@
 using System;
 using UnityEngine;
 
-public class fightSceneManager : MonoBehaviour
+public class Fight
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private Character attacker;
+    private Character defender;
+
+    public Fight()
     {
-        Fight f = new Fight();
-        f.startFight();
+        // Initialize the attacker and defender characters
+        attacker = new Character("Attacker", 100, 15);
+        defender = new Character("Defender", 120, 10);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void startFight()
     {
-        
+        Debug.Log("The fight begins!");
+
+        while (attacker.IsAlive && defender.IsAlive)
+        {
+            // Attacker attacks the defender
+            attacker.Attack(defender);
+            Debug.Log($"{defender.Name} has {defender.Health} health left.");
+
+            if (!defender.IsAlive)
+            {
+                Debug.Log($"{attacker.Name} wins!");
+                break;
+            }
+
+            // Defender retaliates
+            defender.Attack(attacker);
+            Debug.Log($"{attacker.Name} has {attacker.Health} health left.");
+
+            if (!attacker.IsAlive)
+            {
+                Debug.Log($"{defender.Name} wins!");
+                break;
+            }
+        }
+    }
+}
+
+public class Character
+{
+    public string Name { get; private set; }
+    public int Health { get; private set; }
+    public int AttackPower { get; private set; }
+
+    public bool IsAlive => Health > 0;
+
+    public Character(string name, int health, int attackPower)
+    {
+        Name = name;
+        Health = health;
+        AttackPower = attackPower;
+    }
+
+    public void Attack(Character target)
+    {
+        Debug.Log($"{Name} attacks {target.Name} for {AttackPower} damage!");
+        target.TakeDamage(AttackPower);
+    }
+
+    private void TakeDamage(int damage)
+    {
+        Health -= damage;
+        if (Health < 0) Health = 0; // Prevent health from going negative
     }
 }
