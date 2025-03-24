@@ -1,18 +1,42 @@
 using System;
 using UnityEngine;
 
-public class fightSceneManager : MonoBehaviour
+public class Fight
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private Character attacker;
+    private Character defender;
+    private float attackCooldown = 1f; // Time between attacks (in seconds)
+    private float timeSinceLastAttack = 0f; // Time tracker
+
+    public Fight(Character attacker, Character defender)
     {
-        Fight f = new Fight();
-        f.startFight();
+        this.attacker = attacker;
+        this.defender = defender;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void UpdateFight(float deltaTime)
     {
-        
+        timeSinceLastAttack += deltaTime;
+
+        if (timeSinceLastAttack >= attackCooldown)
+        {
+            PerformAttack();
+            timeSinceLastAttack = 0f;
+        }
+    }
+
+    private void PerformAttack()
+    {
+        defender.CurrentHealth -= attacker.AttackPower;
+
+        if (defender.CurrentHealth <= 0)
+        {
+            Debug.Log($"{defender.Name} has been defeated!");
+        }
+    }
+
+    public bool IsFightOver()
+    {
+        return attacker.CurrentHealth <= 0 || defender.CurrentHealth <= 0;
     }
 }
